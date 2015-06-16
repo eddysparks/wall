@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="unspecified"><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/assets"/></dataSet><dataSet config="main"><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/assets"/></dataSet><dataSet config="debug"><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/src/debug/assets"/></dataSet></merger>

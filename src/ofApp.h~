@@ -1,0 +1,52 @@
+#pragma once
+
+#include "ofMain.h"
+#include <gst/gst.h>
+#include <gst/app/gstappsrc.h>
+class ofApp : public ofBaseApp{
+	public:
+		void setup();
+		void update();
+		void draw();
+        void keyPressed(int key);
+        void mouseDragged(int x, int y, int button);
+		void mousePressed(int x, int y, int button);
+		void mouseReleased(int x, int y, int button);
+        void switchMedia(int  & wich);
+        void remapSel(int vidW, int vidH);
+        //void getVideoPath();
+    ofPlanePrimitive  videoProjections[3];
+    ofVideoPlayer vid;
+    ofFbo texture;
+
+    string pipeStr;
+
+    ///gst stuffs
+    GstMapInfo info;
+    GstFlowReturn ret;
+    GstElement *pipeline;
+    //GstElement *source;
+    GstAppSrc * source;
+    GstCaps *caps;
+
+    unsigned char * pixels;
+    ofImage window_img;
+
+    ofGstVideoUtils gst, gst2, gst3;
+     int framesize;
+
+    int grid_res, vWidth, vHeight, spacer, slice, spacer2, spliceH;
+    int sliceW, sliceH;
+
+    ofRectangle selections[3];
+    ofRectangle m_selections[3];
+
+    int maxSel, wichVid, wichSel;
+
+    bool selecting, drawVid, loading;
+
+    ofDirectory media;
+    //int vidNumber;
+    //vector<string> vidPath;
+
+};

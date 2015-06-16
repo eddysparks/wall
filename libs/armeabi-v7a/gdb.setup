@@ -1,0 +1,7 @@
+set solib-search-path /home/ekko/Appz/openFrameworks/examples/android/androidImageExample/obj/local/armeabi-v7a:/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/libs/armeabi-v7a
+set sysroot /home/ekko/Appz/android-ndk-r9d/platforms/android-17/arch-arm/
+directory /home/ekko/Appz/android-ndk-r9d/platforms/android-17/arch-arm/usr/include
+directory /home/ekko/Appz/openFrameworks/examples/android/androidImageExample/src
+directory /home/ekko/Appz/android-ndk-r9d/sources/cxx-stl/system
+directory /home/ekko/Appz/openFrameworks/examples/android/androidImageExample/libs/armeabi-v7a
+

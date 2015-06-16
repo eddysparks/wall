@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="unspecified"><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/res"><file name="main" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/res/layout/main.xml" qualifiers="" type="layout"/><file name="icon" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/res/drawable-mdpi-v4/icon.png" qualifiers="mdpi-v4" type="drawable"/><file name="icon" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/res/drawable-hdpi-v4/icon.png" qualifiers="hdpi-v4" type="drawable"/><file name="icon" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/res/drawable-ldpi-v4/icon.png" qualifiers="ldpi-v4" type="drawable"/><file path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/intermediates/exploded-aar/android/ofAndroidLib/unspecified/res/values/values.xml" qualifiers=""><string name="app_name">ofAndroidLib</string><string name="hello">Hello World!</string></file></source></dataSet><dataSet config="main"><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res"><file name="main_layout" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/layout/main_layout.xml" qualifiers="" type="layout"/><file path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/values-v14/styles.xml" qualifiers="v14"><style name="AppBaseTheme" parent="android:Theme.Holo.Light.NoActionBar.Fullscreen">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style><style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+
+    </style></file><file path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/values-v11/styles.xml" qualifiers="v11"><style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+
+    </style><style name="AppBaseTheme" parent="android:Theme.Holo.Light.NoActionBar.Fullscreen">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style></file><file name="main_layout" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/menu/main_layout.xml" qualifiers="" type="menu"/><file name="ic_launcher" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/drawable/ic_launcher.png" qualifiers="" type="drawable"/><file name="androidimageexampleresources" path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/raw/androidimageexampleresources.zip" qualifiers="" type="raw"/><file path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/values/strings.xml" qualifiers=""><string name="app_name">androidImageExample</string><string name="hello_world">Hello world!</string><string name="menu_settings">Settings</string></file><file path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/res/values/styles.xml" qualifiers=""><style name="AppBaseTheme" parent="android:Theme.Holo.Light.NoActionBar.Fullscreen">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style><style name="AppTheme" parent="AppBaseTheme">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+
+    </style></file></source><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/generated/res/rs/debug"/><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/build/generated/res/generated/debug"/></dataSet><dataSet config="debug"><source path="/home/ekko/Appz/openFrameworks/examples/android/androidImageExample/src/debug/res"/></dataSet><mergedItems/></merger>
