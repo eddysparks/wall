@@ -12,13 +12,15 @@
 #include "Client/ClientOSCManager.h"
 #include "Client/DataPacket.h"
 
-
+/*
 #define SENDHOST "192.168.1.28"
 #define INFOPORT 9393
 //small
 #define RCVPORT 9999
 //big
 //#define RCVPORT 9998
+*/
+//#define DEBUG
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -30,23 +32,22 @@ public:
     void				setup();
     void				update();
     void				draw();
-    
-    void				keyPressed(int key);
-    void				keyReleased(int key);
-    void				mouseMoved(int x, int y );
-    void				mouseDragged(int x, int y, int button);
-    void				mousePressed(int x, int y, int button);
-    void				mouseReleased(int x, int y, int button);
+
+    void touchDown(int x, int y, int id);
+    void touchMoved(int x, int y, int id);
+    void touchUp(int x, int y, int id);
 
     bool				isServer;
     void                newData( DataPacket& _packet  );
+    int                 uniqueID;
 
+    float               videoPct;
     CommonTimeOSC*		commonTimeOsc;
     ClientOSCManager*   client;
     ServerOscManager*   server;
 
-    ofTrueTypeFont		fontSmall;
-    float               currTime;
+    //ofTrueTypeFont		fontSmall;
+    float               currTime, currTimeInt;
     
     int                 screenIndex;
     int                 displayWidth;
@@ -56,33 +57,53 @@ public:
     int                 screenOffsetX;
     int                 screenOffsetY;
     
-    //display stuff
-    void remapSel();
+    /*
+    ofxOscReceiver receiver;
+    ofxOscSender sender;
+    */
 
-   ofxOscReceiver receiver;
-   ofxOscSender sender;
+    DataPacket load_data, play_data;
+    string load_command, play_command;
 
-    ofPlanePrimitive  videoProjection;
-    //ofVideoPlayer video;
-    vector<ofxImageSequence> images;
-    ofRectangle selection;
-    //ofImage imgz[5];
-    //vector<ofVideoPlayer> images;
-    int maxSel, wichVid, wichSel;
+    ofVideoPlayer video;
+    float video_duration;
 
-    ofShader embossShader;
+    bool videoPlay;
+    bool previewMode;
+    int numScreens;
     int numLoaded;
     string loadPath;
+    int numMsx;
 
-    void loadMedia(string path);
+    ofTrueTypeFont		fontSmall, fontBig;
 
+    string vidz[6];
+
+    ofImage loadingImage;
+
+    vector<ofImage> previews;
+    vector<ofRectangle> previewsLoc;
+    void loadPreviews(string previews_dir);
+    void loadContents(string contents_dir);
+
+    void getNumMsx(string msx_dir, int msx);
+    void drawSelectMSX();
+    void drawPlayMSX();
+    void drawLoadImage();
+    void drawPreviews();
+
+    ofxXmlSettings XML;
 
     //battery stuff
+    /*
     int batteryCapacity;
     int batteryStatus;
     int batteryTimeToFull;
     int batteryTimeToEmpty;
 
     void batteryInfo();
+    */
+
+
 
 };

@@ -51,7 +51,7 @@ void ServerOscManager::init(string _serverSendHost, int _serverSendPort, int _se
 	receiver.setup( serverReceivePort );
     
 	lastSentHelloMessageMillis = 0;
-	milliseBetweenHelloMessages = 3 * 1000;
+	milliseBetweenHelloMessages = 3 * 10;
     
 	ofAddListener(ofEvents().update, this, &ServerOscManager::_update );
 	

@@ -12,9 +12,9 @@
 //
 CommonTimeBase::CommonTimeBase()
 {
-	
+	//adjust Here for wifi Ping time fluctuations
 	INITIALISATION_PING_DELAY_MILLIS		= 60;
-	POST_INITIALISATION_PING_DELAY_MILLIS	= 5 * 1000;
+	POST_INITIALISATION_PING_DELAY_MILLIS	= 60;
 	
 	offsetMillis = 0;
 	lastPingSentTimeMillis = 0;

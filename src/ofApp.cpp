@@ -5,43 +5,33 @@
 void ofApp::setup()
 {
      ofSetLogLevel(OF_LOG_NOTICE);
-     ofLog(OF_LOG_NOTICE, "start");
-    cout<<"setting up"<<endl;
+
+    fontSmall.loadFont("Fonts/DIN.otf", 30 );
+    fontBig.loadFont("Fonts/DIN.otf", 60);
     ofBackground(0);
-	isServer = false;
-    //ofxAccelerometer.setup();
-    //ofSetOrientation(OF_ORIENTATION_90_LEFT);
-	//fontSmall.loadFont("Fonts/DIN.otf", 8 );
-	ofEnableAlphaBlending();
-    ofEnableArbTex();
-    wichVid = 0;
-
-	ofSeedRandom();
-
-	ofLog(OF_LOG_NOTICE, "setup OSC");
-
-    receiver.setup(RCVPORT);
-    ofLog(OF_LOG_NOTICE, "done OSC");
-    //small
+    ofSetOrientation(OF_ORIENTATION_90_RIGHT);
+    isServer = true;
     loadPath = "/storage/emulated/0/wall_box/";
-    //big
-    //loadPath = "/mnt/internal_sd/wall_box/";
+    //loadPath = "http://192.168.1.37:8000";
+    ofEnableAlphaBlending();
+    ofEnableArbTex();
+    ofSeedRandom();
 
     ////SYNC STUFF
-    int uniqueID = ofRandom( 999999999 ); // Yeah this is bogus I know. Good enough for our purposes.
+    uniqueID = ofRandom( 999999999 );
     server = NULL;
 	client = NULL;
     ofLog(OF_LOG_NOTICE, "setup server");
 
-
-    if( ofFile( ofToDataPath("Settings/IsServer.txt")).exists() )
+    if( isServer )
 	{
 		server = new ServerOscManager();
-		//server->init( "Settings/ServerSettings.xml" );
+
         server->init("192.168.1.255", 7776, 7777);
 		isServer = server->isInitialised();
-        //isServer = true;
+
         ofAddListener( server->newDataEvent, this, &ofApp::newData );
+
         ofLog(OF_LOG_NOTICE, "starting server");
 	}
 	else
@@ -50,12 +40,12 @@ void ofApp::setup()
         bool loadedFile = XML.loadFile( "Settings/ClientSettings.xml" );
         if( loadedFile )
         {
-            screenIndex = 1; //XML.getValue("Settings:ScreenIndex", 0);
+            screenIndex = 3;
             displayWidth = XML.getValue("Settings:DisplayWidth", 1920);
             displayHeight = XML.getValue("Settings:DisplayHeight", 1080);
             viewWidth = XML.getValue("Settings:ViewWidth", ofGetWidth());
             viewHeight = XML.getValue("Settings:ViewHeight", ofGetHeight());
-            //screenOffsetX = viewWidth*screenIndex;
+
         }
 
 		client = new ClientOSCManager();
@@ -63,290 +53,286 @@ void ofApp::setup()
         ofLog(OF_LOG_NOTICE, "done init client");
 
 		commonTimeOsc = client->getCommonTimeOscObj();
-		commonTimeOsc->setEaseOffset( true );
+		commonTimeOsc->setEaseOffset( false );
 
 		ofAddListener( client->newDataEvent, this, &ofApp::newData );
-	}
+		}
 
 
-    //small
-
-    videoProjection.set(ofGetWidth(),  ofGetHeight());
-    videoProjection.setPosition(ofGetWidth()/2, ofGetHeight()/2, 0);
-    videoProjection.setResolution(8, 8);
-
-    //BIG
-    //videoProjection.set(ofGetHeight(),  ofGetWidth());
-    //videoProjection.setPosition((int)ofGetHeight()/2, (int)ofGetWidth()/2, 0);
-    //videoProjection.setResolution(8, 8);
-
-    ofLog(OF_LOG_NOTICE, "done texture");
-    selection.x = 0.0;
-    selection.y = 0.0;
-    selection.width = 1.0;
-    selection.height = 1.0;
-    ofLog(OF_LOG_NOTICE, "remap selection");
-    remapSel();
-
-    //loadMedia("unknown");
-
-    //sender.setup(SENDHOST, INFOPORT);
+    if(!isServer){
+       loadingImage.load("loadscreen.jpg");
+    }else if(isServer){
+        ofLog(OF_LOG_NOTICE, "loading previews");
+        loadPreviews(loadPath + "MSX_PREVIEWS");
+    }
+    previewMode = true;
 }
-
-void ofApp::remapSel(){
-
-     videoProjection.mapTexCoords(selection.x, selection.y,selection.x + selection.width,selection.y + selection.height);
-
-}
-
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 //
 void ofApp::update()
 {
-    //videoProjection.set(ofGetWidth(), ofGetHeight());
     currTime = 0.0f;
-    if( isServer ) {currTime = ofGetElapsedTimef(); } else { currTime = commonTimeOsc->getTimeSecs(); }
-
-
-
-    while(receiver.hasWaitingMessages()){
-
-        ofxOscMessage m;
-        receiver.getNextMessage(&m);
-
-        if(m.getAddress() == "/LOC"){
-
-            selection.x = m.getArgAsFloat(0);
-            selection.y = m.getArgAsFloat(1);
-            selection.width = m.getArgAsFloat(2);
-            selection.height = m.getArgAsFloat(3);
-
-            
-            remapSel();
-
-        }else if(m.getAddress()=="/NUMVID"){
-
-            //if(m.getArgAsInt32(0)>= numLoaded){
-                wichVid = m.getArgAsInt32(0);
-            //}
-
-        }else if(m.getAddress()=="/LOAD"){
-            ofLog(OF_LOG_NOTICE, m.getArgAsString(0));
-            loadMedia(m.getArgAsString(0));
-
-        }else if(m.getAddress() == "/CLEAR"){
-
-            numLoaded = 0;
-            images.clear();
-
-        }
+    if( isServer ) {currTime = ofGetElapsedTimef();
     }
-    //ofLog(OF_LOG_NOTICE, "checking battery");
-    //batteryInfo();
+    else { currTime = commonTimeOsc->getTimeSecs();
 
+    }
+    if(video.isLoaded()){
+        video.update();
+    }
 }
 
-
-void ofApp::loadMedia(string path){
-
-    ofDirectory dir2scan(path);
-    dir2scan.allowExt("jpg");
-    dir2scan.listDir();
-
-
-    ofxImageSequence * img = new ofxImageSequence();
-    //small
-    img->loadSequence(path+"/", "jpg",  0, dir2scan.size()-1);
-    //img->loadSequence(path, "jpg", 0, numFiles);
-    img->preloadAllFrames();
-    img->setFrameRate(13);
-    images.push_back(*img);
-
-    numLoaded++;
-
-}
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 //
-void ofApp::draw()
-{
-            if(numLoaded > 0){
+void ofApp::draw(){
 
-            images[wichVid].getFrameForTime(ofGetElapsedTimef())->draw(0, 0,images[wichVid].getWidth(), images[wichVid].getHeight());
-            images[wichVid].getTextureReference().bind();
-                //old
-                //videoProjection.draw();
-                /*
-                ofPushMatrix();
-                    ofTranslate(ofGetWidth()/2, ofGetHeight()/2, 0);
-                    ofRotate(90, 0, 0, -1);
+           if(video.isPlaying()){
+                video.draw(0, 0, ofGetWidth(), ofGetHeight());
+           }
+           else{
+                if(isServer){
 
-                        ofPushMatrix();
-                            ofTranslate( -ofGetHeight()/2, -ofGetWidth()/2,0);
-                            videoProjection.draw();
+                    if(video.isLoaded() == false && video.isPlaying()==false){
+                        drawPreviews();
+                    }else if(video.isPlaying() == false && video.isLoaded()==true){
+                        drawPlayMSX();
+                    }
 
-                        ofPopMatrix();
-                ofPopMatrix();
-                */
-            images[wichVid].getTextureReference().unbind();
-            }
-            //ofDrawBitmapString(loadPath+"/"+"bubbles", 100, 100);
+                }else if(!isServer){
+                        drawLoadImage();
+                }
+           }
+                //to be double checked
+                #ifdef DEBUG
+                ofSetColor(0, 255, 0);
+                //server->draw();
+                if( isServer )
+                {
+                    //fontSmall.drawString( "Server   Time: " + ofToString( currTime, 2), 600, 85 );
+                }
+                else
+                {
+                    fontSmall.drawString( "Screen: " + ofToString(screenIndex) + "  Time: " + ofToString( currTime, 2), 300, 30 );
+                    fontSmall.drawString( "Offset: " + ofToString(commonTimeOsc->offsetMillis) + " OffsetTarget: " + ofToString(commonTimeOsc->offsetMillisTarget), 300, 80 );
+                    fontSmall.drawString( "uuid: " + ofToString(screenIndex), 300, 120 );
 
+                }
+                ofSetColor(255, 255, 255);
+                #endif
 }
 
-void ofApp::newData( DataPacket& _packet  )
-{
+void ofApp::newData( DataPacket& _packet){
 
     if(!isServer){
-        if(_packet.valuesInt.size() > 0){
-            if(_packet.valuesInt[0] == 0){
 
-            }
-            if(_packet.valuesInt[0] == 1){
+        if(_packet.valuesString.size() > 0){
+            if(_packet.valuesString[0] == "P"){
+                videoPlay = !videoPlay;
+                if(videoPlay){
+                    video.setPosition(0);
+                    video.setPaused(false);
+                }else{
 
-            }
-            if(_packet.valuesInt[0] == 2){
-
-            }
-            if(_packet.valuesInt[0] == 3){
-
-            }
-            if(_packet.valuesInt[0] == 4){
-
-            }
-            if(_packet.valuesInt[0] == 5){
-
+                    video.setPosition(0);
+                    video.setPaused(true);
+                    video.close();
+                }
+            }else if(_packet.valuesString[0]=="F"){
+                ofLog(OF_LOG_NOTICE, ofToString(_packet.valuesInt[0]));
+                getNumMsx(loadPath + "MSX", _packet.valuesInt[0]);
             }
         }
-    }else{
-        cout<<"new data"<<endl;
     }
-
 }
 
+void ofApp::touchUp(int x, int y, int id){
 
+    ofPoint touchPoint;
+    touchPoint.x = x;
+    touchPoint.y = y;
+    ofLog(OF_LOG_NOTICE, ofToString(previewMode));
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-//
-void ofApp::keyPressed(int key)
-{
     if(isServer){
-        DataPacket data;
-        int client;
-        string command;
-        float value;
-        if(key == 'a'){
-            client = 0;
-            command = "play";
-            value = 100.00;
-        }
-        if(key == 'z'){
-            client = 1;
-            command = "play";
-            value = 50.00;
+        if(previewMode == false){
+            ofSetOrientation(OF_ORIENTATION_UNKNOWN);
+            play_command = "P";
+            play_data.valuesString.push_back(play_command);
+            server->sendData(play_data);
+            videoPlay = !videoPlay;
 
-        }
-        if(key == 'e'){
-            client = 2;
-            command = "play";
-            value = 25.00;
+            if(videoPlay){
+                video.setPosition(0);
+                video.setPaused(false);
+            }else{
+                video.setPosition(0);
+                video.setPaused(true);
+                video.stop();
+                video.close();
+                previewMode = true;
+             }
+        }else if(previewMode == true){
 
-        }
-        if(key == 'r'){
-            client = 3;
-            command = "play";
-            value = 15.00;
+            if(previewsLoc.size()>0){
 
-        }
-        if(key == 't'){
-            client = 4;
-            command = "play";
-            value = 5.00;
+                for(int i = 0; i<previewsLoc.size(); i++){
 
-        }
-        if(key == 'y'){
-            client = 5;
-            command = "play";
-            value = 2.50;
-        }
-        data.valuesFloat.push_back(value);
-        data.valuesInt.push_back(client);
-        data.valuesString.push_back(command);
+                    if(previewsLoc[i].inside(touchPoint)){
 
-        server->sendData(data.valuesString, data.valuesInt, data.valuesFloat);
+                        getNumMsx(loadPath + "MSX", i);
+                        previewMode = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void ofApp::touchDown(int x, int y, int id){}
+void ofApp::touchMoved(int x, int y, int id){}
+// ---------------------------------------------------------------------------------------------------------------------------------------------------
+//
+
+void ofApp::drawPlayMSX(){
+
+    ofPushStyle();
+        ofNoFill();
+        ofSetRectMode(OF_RECTMODE_CENTER);
+        ofSetCircleResolution(200);
+        ofSetLineWidth(5);
+        ofCircle(ofGetWidth()/2, ofGetHeight()/2, 350);
+        fontBig.drawString("START THE MSX >", (ofGetWidth()/4), ofGetHeight()/2);
+    ofPopStyle();
+}
+
+void ofApp::drawLoadImage(){
+
+    loadingImage.draw(0, 0, ofGetWidth(), ofGetHeight());
+}
+
+void ofApp::loadContents(string contents_dir){
+
+    // get the list of video files in the MSX dir
+    ofDirectory dir(contents_dir);
+    dir.allowExt("mp4");
+    dir.listDir();
+    dir.sort();
+    // if already loaded closes the movie and dealocate
+    if(video.isLoaded() == true){
+        video.close();
+
+    }
+    ///now where sure that video is not loaded load it and set it to pause at frame 0
+
+    //if server load first video if client load video at client index
+    if(isServer){
+        video.load(dir.getPath(0));
+    }else{
+        video.load(dir.getPath(screenIndex));
+    }
+    video.setLoopState(OF_LOOP_NORMAL);
+    video.play();
+    video.setPosition(0);
+    video.setPaused(true);
+
+}
+
+void ofApp::loadPreviews(string previews_dir){
+
+    string rawXML = ofFile("http://192.168.1.37:8000/wall.xml").readToBuffer();
+
+    if(XML.loadFromBuffer(rawXML)){
+
+        ofLog(OF_LOG_NOTICE, "XML LOADED");
+    }else{
+
+        ofLog(OF_LOG_NOTICE, "XML NOT LOADED");
+    }
+
+
+    ofLog(OF_LOG_NOTICE, "loading from");
+    ofLog(OF_LOG_NOTICE, previews_dir);
+
+    ofDirectory dir(previews_dir);
+    dir.allowExt("jpeg");
+
+    dir.listDir();
+    dir.sort();
+
+    ofLog(OF_LOG_NOTICE, "num previews");
+    ofLog(OF_LOG_NOTICE, ofToString(dir.numFiles()));
+
+    //loadImages
+    for(int i = 0; i<dir.numFiles(); i++){
+        ofImage * prev = new ofImage();
+        ofLog(OF_LOG_NOTICE, dir.getPath(i));
+        prev->load(dir.getPath(i));
+        previews.push_back(*prev);
     }
 
 }
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-//
-void ofApp::keyReleased(int key)
-{
-}
+void ofApp::drawPreviews(){
+    ofSetOrientation(OF_ORIENTATION_90_RIGHT);
+    //populate previewbuttons
+        if(previewsLoc.size()>0){
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-//
-void ofApp::mouseMoved(int x, int y )
-{
-}
+            previewsLoc.clear();
+        }
+        int screendiv = ofGetWidth()/previews.size();
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-//
-void ofApp::mouseDragged(int x, int y, int button)
-{
-}
+        for(int i = 0; i<previews.size(); i++){
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-//
-void ofApp::mousePressed(int x, int y, int button)
-{
+            ofRectangle * rect = new ofRectangle();
 
-    if(!isServer){
-        DataPacket packet;
-        packet.valuesString.push_back("mouseClicked");
-        client->sendData(packet);
+            rect->x = screendiv * i;
+            rect->y = ofGetHeight()/4;
+            rect->width = screendiv;
+            rect->height = ofGetHeight()/2;
+
+            previewsLoc.push_back(*rect);
+        }
+
+    ofPushStyle();
+        ofSetColor(255, 255, 255);
+        ofSetRectMode(OF_RECTMODE_CENTER);
+        fontBig.drawString("SELECT THE MSX", (ofGetWidth()/4), 100);
+    ofPopStyle();
+
+    if(previews.size() > 0){
+
+        ofPushStyle();
+        for(int i =0; i<previews.size(); i++){
+            previews[i].draw(previewsLoc[i].x, previewsLoc[i].y, previewsLoc[i].width, previewsLoc[i].height);
+            ofSetLineWidth(3);
+            ofNoFill();
+            ofSetColor(255, 255, 255);
+            ofRect(previewsLoc[i].x, previewsLoc[i].y, previewsLoc[i].width, previewsLoc[i].height);
+        }
+        ofPopStyle();
     }
-
 }
 
-// ---------------------------------------------------------------------------------------------------------------------------------------------------
-//
-void ofApp::mouseReleased(int x, int y, int button)
-{
-}
+void ofApp::getNumMsx(string msx_dir, int msx){
 
-void ofApp::batteryInfo(){
+    ofDirectory dir(msx_dir);
+    dir.listDir();
+    dir.sort();
+    ofLog(OF_LOG_NOTICE, "numMSX = ");
+    ofLog(OF_LOG_NOTICE, ofToString(msx));
+    ofLog(OF_LOG_NOTICE, "gettin MSX: ");
+    ofLog(OF_LOG_NOTICE, dir.getPath(msx));
 
-	string delimiter = "=";
+    loadContents(dir.getPath(msx));
 
-	ofFile tempFile;
-	tempFile.open("/sys/class/power_supply/battery/uevent", ofFile::ReadOnly, false);
-	ofBuffer buff = tempFile.readToBuffer();
-	while(!buff.isLastLine()){
-		string text = buff.getNextLine();
-		string token = text.substr(0, text.find(delimiter));
-		if (token == "POWER_SUPPLY_CAPACITY"){
-			batteryCapacity = atoi(text.substr(text.find(delimiter) +1 , text.size()).c_str());
-		    ofLog(OF_LOG_NOTICE, ofToString(batteryCapacity));
-		} else if (token == "POWER_SUPPLY_STATUS"){
-			if (text.substr(text.find(delimiter) +1 , text.size()).c_str()=="Not charging") batteryStatus = 0;
-			else batteryStatus = 1;
+    if(isServer){
 
+        load_command = "F";
+        load_data.valuesString.push_back(load_command);
+        ofLog(OF_LOG_NOTICE, "SENDING MSX: ");
+        ofLog(OF_LOG_NOTICE, ofToString(msx));
+        load_data.valuesInt.clear();
+        load_data.valuesInt.push_back(msx);
+        server->sendData(load_data);
 
-		} else if (token == "POWER_SUPPLY_TIME_TO_EMPTY_NOW"){
-			batteryTimeToFull = atoi(text.substr(text.find(delimiter) +1 , text.size()).c_str());
-		} else if (token == "POWER_SUPPLY_TIME_TO_FULL_NOW"){
-			batteryTimeToEmpty = atoi(text.substr(text.find(delimiter) +1 , text.size()).c_str());
-		}
-
-	}
-
-	ofxOscMessage m;
-	m.setAddress( "/battery");
-	m.addIntArg(batteryCapacity);
-	m.addIntArg(batteryStatus);
-	m.addIntArg(batteryTimeToEmpty);
-	m.addIntArg(batteryTimeToFull);
-
-	sender.sendMessage( m );
-
+    }
 }

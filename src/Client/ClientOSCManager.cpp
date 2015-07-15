@@ -91,7 +91,7 @@ void ClientOSCManager::_update(ofEventArgs &e)
 		ofxOscMessage m;
 		receiver.getNextMessage(&m);
 		
-		ofLog(OF_LOG_NOTICE, "Got message: " + m.getAddress());
+		//ofLog(OF_LOG_NOTICE, "Got message: " + m.getAddress());
 		
 		if( m.getAddress() == "/hello" )
 		{
